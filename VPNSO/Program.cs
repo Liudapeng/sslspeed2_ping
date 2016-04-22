@@ -182,7 +182,7 @@ namespace VPNSO
                 proxy.Tims.Add(executionTime);
                 Console.WriteLine("-Timing: " + executionTime + "ms");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 proxy.Tims.Add(ERRORTIME);
                 Console.WriteLine("-Timing: x:ERROR");
@@ -219,7 +219,7 @@ namespace VPNSO
                     return responseString;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 stateCode = HttpStatusCode.BadRequest;
                 return "[]";
