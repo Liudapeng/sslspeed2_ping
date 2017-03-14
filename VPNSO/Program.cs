@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -103,8 +104,8 @@ namespace VPNSO
                         Port = i,
                         RemoteIp = keyValuePair.Key.Trim(),
                         RemotePort = 443,
-                        UserName = "huoqiangshou",
-                        Password = "22222222"
+                        UserName = ConfigurationManager.AppSettings["UserName"],
+                        Password = ConfigurationManager.AppSettings["Password"],
                     };
                     proxyList.Add(proxyInfo);
 
@@ -212,14 +213,15 @@ namespace VPNSO
             {
                 using (var client = new HttpClient())
                 {
-                    client.Timeout = new TimeSpan(0, 0, 5);
+                  //var a=  client.GetAsync()
+                  //  client.Timeout = new TimeSpan(0, 0, 5);
                     var response = client.GetAsync(url).Result;
                     var responseString = response.Content.ReadAsStringAsync().Result;
                     stateCode = response.StatusCode;
                     return responseString;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 stateCode = HttpStatusCode.BadRequest;
                 return "[]";
