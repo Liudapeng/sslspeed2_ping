@@ -80,6 +80,7 @@ namespace VPNSO
         static void GetProxyServerList()
         {
             Console.WriteLine("》》》正在获取远程代理服务列表……");
+            Console.WriteLine();
             HttpStatusCode stateCode;
             var listStr = Get(serverListURL, out stateCode);
             if (stateCode == HttpStatusCode.OK)
@@ -119,6 +120,7 @@ namespace VPNSO
 
             }
             Console.WriteLine("》》》代理服务列表获取完成,启动Stunnel客户端后，任意键测试速度");
+            Console.WriteLine("》》》Stunnel客户端下载地址：https://www.stunnel.org/downloads.html");
             Console.ReadLine();
         }
 
