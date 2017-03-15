@@ -223,7 +223,7 @@ namespace VPNSO
                     return responseString;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 stateCode = HttpStatusCode.BadRequest;
                 return "[]";
