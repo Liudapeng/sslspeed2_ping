@@ -42,12 +42,12 @@ namespace VPNSO
         public string RemoteIp { get; set; }
 
         public int RemotePort { get; set; }
-        public List<long> Tims { get; set; } 
+        public List<long> Tims { get; set; }
     }
 
     class Program
     {
-        static string serverListURL = "https://sslauth.60in.com/RPC/index.php?action=serverlistjson";
+        static string serverListURL = "https://678in.com/index.php?action=serverlistjson&callback=loadServerlist";
         private static readonly List<ProxyInfo> proxyList = new List<ProxyInfo>();
         static void Main(string[] args)
         {
@@ -85,40 +85,51 @@ namespace VPNSO
             var listStr = Get(serverListURL, out stateCode);
             if (stateCode == HttpStatusCode.OK)
             {
-                //Console.WriteLine(listStr);
-                //Console.WriteLine();
-                listStr = listStr.Trim('(', ')');
-                var list = JsonConvert.DeserializeObject<Dictionary<string, string>>(listStr);
-
-                var i = 9900;
-                foreach (var keyValuePair in list)
-                {
-                    var lowerKey = keyValuePair.Key.ToLower();
-                    if (!(lowerKey.StartsWith("jp") || lowerKey.StartsWith("s") || lowerKey.StartsWith("kr") || lowerKey.StartsWith("de")))
-                    {
-                        continue;
-                    }
-                    var proxyInfo = new ProxyInfo
-                    {
-                        Name = i + "-" + keyValuePair.Value,
-                        Ip = GetLocalIpv4().FirstOrDefault(),
-                        Port = i,
-                        RemoteIp = keyValuePair.Key.Trim(),
-                        RemotePort = 443,
-                        UserName = ConfigurationManager.AppSettings["UserName"],
-                        Password = ConfigurationManager.AppSettings["Password"],
-                    };
-                    proxyList.Add(proxyInfo);
-
-                    Console.WriteLine("[" + proxyInfo.Name + "]");
-                    Console.WriteLine("client = yes");
-                    Console.WriteLine("accept = " + proxyInfo.Ip + ":" + proxyInfo.Port);
-                    Console.WriteLine("connect = " + proxyInfo.RemoteIp + ":" + proxyInfo.RemotePort);
-                    Console.WriteLine();
-                    i++;
-                }
-
+                listStr = listStr.Replace("loadServerlist","").Trim('(', ')');
+               
             }
+
+            if (String.IsNullOrEmpty(listStr))
+            {
+                Console.WriteLine("》》》自动获取代理服务器列表失败，手动输入，单行回车结束");
+                listStr = Console.ReadLine();
+            }
+
+            if (String.IsNullOrEmpty(listStr))
+            {
+                Console.WriteLine("》》》代理列表为空");
+                Console.ReadLine();
+            }
+
+            var list = JsonConvert.DeserializeObject<Dictionary<string, string>>(listStr);
+            var i = 9900;
+            foreach (var keyValuePair in list)
+            {
+                var lowerKey = keyValuePair.Key.ToLower();
+                if (!(lowerKey.StartsWith("jp") || lowerKey.StartsWith("s") || lowerKey.StartsWith("kr") || lowerKey.StartsWith("de")))
+                {
+                    continue;
+                }
+                var proxyInfo = new ProxyInfo
+                {
+                    Name = i + "-" + keyValuePair.Value,
+                    Ip = GetLocalIpv4().FirstOrDefault(),
+                    Port = i,
+                    RemoteIp = keyValuePair.Key.Trim(),
+                    RemotePort = 443,
+                    UserName = ConfigurationManager.AppSettings["UserName"],
+                    Password = ConfigurationManager.AppSettings["Password"],
+                };
+                proxyList.Add(proxyInfo);
+
+                Console.WriteLine("[" + proxyInfo.Name + "]");
+                Console.WriteLine("client = yes");
+                Console.WriteLine("accept = " + proxyInfo.Ip + ":" + proxyInfo.Port);
+                Console.WriteLine("connect = " + proxyInfo.RemoteIp + ":" + proxyInfo.RemotePort);
+                Console.WriteLine();
+                i++;
+            }
+
             Console.WriteLine("》》》代理服务列表获取完成,启动Stunnel客户端后，任意键测试速度");
             Console.WriteLine("》》》Stunnel客户端下载地址：https://www.stunnel.org/downloads.html");
             Console.ReadLine();
@@ -215,8 +226,8 @@ namespace VPNSO
             {
                 using (var client = new HttpClient())
                 {
-                  //var a=  client.GetAsync()
-                  //  client.Timeout = new TimeSpan(0, 0, 5);
+                    //var a=  client.GetAsync()
+                    //  client.Timeout = new TimeSpan(0, 0, 5);
                     var response = client.GetAsync(url).Result;
                     var responseString = response.Content.ReadAsStringAsync().Result;
                     stateCode = response.StatusCode;
